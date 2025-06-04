@@ -2,6 +2,7 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+// const twilio = require('twilio');
 
 // Login user
 // const login = async (req, res) => {
@@ -161,6 +162,70 @@ const sendOtp = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+
+// const sendOtp = async (req, res) => {
+//     const { email, phone, type } = req.body;
+
+//     // Validate type and required contact info
+//     if (!type || !['email', 'phone'].includes(type)) {
+//         return res.status(400).json({ message: 'Invalid or missing type. Must be "email" or "phone"' });
+//     }
+//     if (type === 'email' && !email) {
+//         return res.status(400).json({ message: 'Email is required for type "email"' });
+//     }
+//     if (type === 'phone' && !phone) {
+//         return res.status(400).json({ message: 'Phone number is required for type "phone"' });
+//     }
+
+//     try {
+//         // Find user by email or phone based on type
+//         const query = type === 'email' ? { email } : { phone };
+//         const user = await User.findOne(query);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//         user.otp = otp;
+//         await user.save();
+
+//         if (type === 'email') {
+//             // Send OTP via email
+//             const transporter = nodemailer.createTransport({
+//                 service: 'gmail',
+//                 auth: {
+//                     user: process.env.EMAIL_USER,
+//                     pass: process.env.EMAIL_PASS,
+//                 },
+//             });
+
+//             const mailOptions = {
+//                 from: process.env.EMAIL_USER,
+//                 to: email,
+//                 subject: 'Password Reset OTP',
+//                 text: `Your OTP for password reset is: ${otp}`,
+//             };
+
+//             await transporter.sendMail(mailOptions);
+//             return res.status(200).json({ message: 'OTP sent to email', otp });
+//         } else {
+//             // Send OTP via SMS using Twilio
+//             const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+//             await client.messages.create({
+//                 body: `Your OTP for password reset is: ${otp}`,
+//                 from: process.env.TWILIO_PHONE_NUMBER,
+//                 to: phone,
+//             });
+
+//             return res.status(200).json({ message: 'OTP sent to phone', otp });
+//         }
+
+//     } catch (error) {
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// };
 
 
 const resetPassword = async (req, res) => {
