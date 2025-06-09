@@ -99,34 +99,68 @@ const login = async (req, res) => {
 
 
 const register = async (req, res) => {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, role } = req.body; // ⬅️ add isAdmin
 
     try {
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = new User({ name, email, password, phone });
+        const user = new User({ name, email, password, phone, role: role || 'user' }); // ⬅️ include isAdmin
         await user.save();
 
-        // Generate JWT
         const token = jwt.sign(
-            { id: user._id, email: user.email },
+            { id: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-
         res.status(201).json({
             message: 'User registered successfully',
             token,
-            user: { id: user._id, name: user.name, email: user.email, phone: user.phone },
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role // ⬅️ include in response
+            },
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+
+// const register = async (req, res) => {
+//     const { name, email, password, phone } = req.body;
+
+//     try {
+//         // Check if user already exists
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(400).json({ message: 'User already exists' });
+//         }
+
+//         const user = new User({ name, email, password, phone });
+//         await user.save();
+
+//         // Generate JWT
+//         const token = jwt.sign(
+//             { id: user._id, email: user.email },
+//             process.env.JWT_SECRET,
+//             { expiresIn: '1h' }
+//         );
+
+//         res.status(201).json({
+//             message: 'User registered successfully',
+//             token,
+//             user: { id: user._id, name: user.name, email: user.email, phone: user.phone },
+//         });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// };
 
 const sendOtp = async (req, res) => {
     const { email } = req.body;

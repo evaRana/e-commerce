@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     phone: { type: Number, required: true },
     otp: { type: String },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' } // 👈 role added
 }, { timestamps: true, bufferCommands: false });
 
 userSchema.pre('save', async function (next) {
